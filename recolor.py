@@ -42,6 +42,7 @@ def can_find_black(colors):
     return found
 
 
+"""
 def can_find_dark(colors):
     found = 0
     for color in colors :
@@ -50,21 +51,23 @@ def can_find_dark(colors):
             found += 1
             print("found_dark", ratio, color[1])
     return found
-
+"""
 
 def color_analysis(filename):
     im = Image.open("sprites/" + filename)
     colors = get_colors_from_image(im)
 
-    print(filename, can_find_black(colors), can_find_dark(colors))
+    print(filename, colors)
     print(" ")
 
     im.close()
 
+def main():
+    print(" ")
+    with os.scandir("sprites") as it:
+        for entry in it:
+            if entry.name.endswith('.png') and entry.is_file():
+                color_analysis(entry.name)
 
-for _, _, files in os.walk("sprites"):
-    for name in files:
-        if name.endswith((".png")):
-            color_analysis(name)
 
-
+main()
