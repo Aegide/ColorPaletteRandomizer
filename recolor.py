@@ -11,7 +11,7 @@ class Type(Enum):
 
 
 BLACK_COLOR = (16, 16, 16, 255)
-
+HUE_BOUND = 25
 
 def rgb_to_hsv(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
@@ -50,10 +50,21 @@ def get_colors_from_image(image):
 
 def remove_alpha(colors:list):
     colors.pop(0)
+    return colors
 
+def is_gray(color):
+    red = color[1][0]
+    green = color[1][1]
+    blue = color[1][2]
+    return red == green == blue
+
+# steel types lmao
+def remove_grays(colors:list):
+    colors = [color for color in colors if not is_gray(color)]
+    return colors
 
 def delta(val_a, val_b):
-    delta = math.sqrt(val_a**2 + val_b**2)
+    delta = abs(val_a-val_b)
     return truncate(delta)
 
 
@@ -71,16 +82,18 @@ def get_hue(color):
     return truncate(main_hue)
 
 
-def color_clusters(colors):
+def get_color_cluster(colors):
+    color_cluster = []
     main_color = get_main_color(colors)
     main_hue = get_hue(main_color)
     
-    print(main_color, "\n")
     for color in colors:
         hue = get_hue(color[1])
         delta_hue = delta(main_hue, hue)
-        print(color[1], hue, delta_hue)
-    print(" ")
+        if delta_hue < HUE_BOUND:
+            color_cluster.append(color)
+    
+    return color_cluster
 
 
 def show_colors(colors):
@@ -91,10 +104,16 @@ def show_colors(colors):
 
 def color_analysis(filename):
     im = Image.open("sprites/" + filename)
+    
     colors = get_colors_from_image(im)
-    # show_colors(colors)
-    remove_alpha(colors)
-    color_clusters(colors)
+    colors = remove_alpha(colors)
+    colors = remove_grays(colors)
+
+    show_colors(colors)
+
+    main_cluster = get_color_cluster(colors)
+    show_colors(main_cluster)
+
     im.close()
 
 
@@ -124,32 +143,35 @@ main()
 
 
 
+(218, (57, 148, 148, 255))
+(133, (98, 213, 180, 255))
+(88, (115, 172, 49, 255)) 
+(67, (24, 74, 74, 255))   
+(52, (164, 213, 65, 255)) 
+(36, (131, 238, 197, 255))
+(35, (82, 98, 41, 255))   
+(22, (189, 255, 115, 255))
+(14, (189, 41, 32, 255))  
+(6, (255, 106, 98, 255))  
+(4, (222, 74, 65, 255))   
+ 
+(218, (57, 148, 148, 255))
+(133, (98, 213, 180, 255))
+(67, (24, 74, 74, 255))   
+(36, (131, 238, 197, 255))
 
 
 
-(57, 148, 148, 255) 
 
 
-(24, 74, 74, 255)       180.0       254.558
-(57, 148, 148, 255)     180.0       254.558  
-(98, 213, 180, 255)     162.782     242.689
-(131, 238, 197, 255)    157.009     238.855
 
 
-(82, 98, 41, 255)       76.842      195.715
-(115, 172, 49, 255)     87.804      200.273
-(164, 213, 65, 255)     79.864      196.921
-(189, 255, 115, 255)    88.285      200.485
 
 
-(189, 41, 32, 255)      3.439       180.032
-(255, 106, 98, 255)     3.057       180.025
-(222, 74, 65, 255)      3.439       180.032
 
 
-(16, 16, 16, 255)       0.0         180.0
-(205, 205, 205, 255)    0.0         180.0
-(255, 255, 255, 255)    0.0         180.0
+
+
 
 
 
