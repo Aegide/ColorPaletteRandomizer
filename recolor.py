@@ -42,27 +42,19 @@ def can_find_black(colors):
     return found
 
 
-"""
-def can_find_dark(colors):
-    found = 0
-    for color in colors :
-        ratio = color_ratio(color, 3)
-        if BLACK_BOUND < ratio < DARK_BOUND :
-            found += 1
-            print("found_dark", ratio, color[1])
-    return found
-"""
-
-def color_analysis(filename):
-    im = Image.open("sprites/" + filename)
-    colors = get_colors_from_image(im)
-
-    print(filename)
+def remove_alpha(colors:list):
+    colors.pop(0)
     for color in colors:
         print(color)
     print(" ")
 
+
+def color_analysis(filename):
+    im = Image.open("sprites/" + filename)
+    colors = get_colors_from_image(im)
+    colors = remove_alpha(colors)
     im.close()
+
 
 def main():
     print(" ")
@@ -77,25 +69,21 @@ main()
 
 
 """
-(5576,(255, 255, 255, 0))
-(21,  (255, 255, 255, 255))
-(10,  (205, 205, 205, 255))
-(118, (16, 16, 16, 255)) 
 
-
-(67,  (24, 74, 74, 255))  
 (218, (57, 148, 148, 255))
 (133, (98, 213, 180, 255))
-(36,  (131, 238, 197, 255))
- 
-
-(35, (82, 98, 41, 255))
+(118, (16, 16, 16, 255))  
 (88, (115, 172, 49, 255)) 
+(67, (24, 74, 74, 255))   
 (52, (164, 213, 65, 255)) 
+(36, (131, 238, 197, 255))
+(35, (82, 98, 41, 255))   
 (22, (189, 255, 115, 255))
-
-
+(21, (255, 255, 255, 255))
 (14, (189, 41, 32, 255))  
-(6,  (255, 106, 98, 255))  
-(4,  (222, 74, 65, 255)) 
+(10, (205, 205, 205, 255))
+(6, (255, 106, 98, 255))  
+(4, (222, 74, 65, 255)) 
+
+
 """
