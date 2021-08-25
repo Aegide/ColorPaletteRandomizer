@@ -11,7 +11,6 @@ class Type(Enum):
 
 
 BLACK_COLOR = (16, 16, 16, 255)
-COLOR_DELTA_BOUND = 125
 
 
 def rgb_to_hsv(r, g, b):
@@ -39,9 +38,8 @@ def color_amount(elem):
     return elem[0]
 
 
-def truncate(value, decimals):
+def truncate(value, decimals=3):
     return int(value*(10**decimals))/(10**decimals)
-
 
 
 def get_colors_from_image(image):
@@ -54,24 +52,34 @@ def remove_alpha(colors:list):
     colors.pop(0)
 
 
-def color_delta(color_a, color_b):
-    red = color_a[0] - color_b[0]
-    green = color_a[1] - color_b[1]
-    blue = color_a[2] - color_b[2]
-    delta = math.sqrt(red**2 + green**2 + blue**2)
-    return delta 
+def delta(val_a, val_b):
+    delta = math.sqrt(val_a**2 + val_b**2)
+    return truncate(delta)
+
+
+def get_main_color(colors):
+    if (colors[0][1] == BLACK_COLOR):
+        main_color = colors[1][1]
+    else:
+        main_color = colors[0][1]
+    return main_color
+
+
+def get_hue(color):
+    r, g, b = color[0], color[1], color[2]
+    main_hue, _, _ = rgb_to_hsv(r, g, b)
+    return truncate(main_hue)
 
 
 def color_clusters(colors):
-    if (colors[0][1] == BLACK_COLOR):
-        main_color = colors.pop(1)[1]
-    else:
-        main_color = colors.pop(0)[1]
-    print(main_color)
+    main_color = get_main_color(colors)
+    main_hue = get_hue(main_color)
+    
+    print(main_color, "\n")
     for color in colors:
-        delta = color_delta(main_color, color[1])
-        delta = truncate(delta, 2)
-        print(color[1], delta)
+        hue = get_hue(color[1])
+        delta_hue = delta(main_hue, hue)
+        print(color[1], hue, delta_hue)
     print(" ")
 
 
@@ -115,20 +123,26 @@ main()
 
 
 
-(57, 148, 148, 255)
-(98, 213, 180, 255) 83.24
-(16, 16, 16, 255) 191.12
-(115, 172, 49, 255) 117.22
-(24, 74, 74, 255) 109.73
-(164, 213, 65, 255) 150.2
-(131, 238, 197, 255) 126.4
-(82, 98, 41, 255) 120.72
-(189, 255, 115, 255) 173.09
-(255, 255, 255, 255) 249.2
-(189, 41, 32, 255) 205.74
-(205, 205, 205, 255) 168.52
-(255, 106, 98, 255) 208.48
-(222, 74, 65, 255) 198.97
+
+
+
+
+(57, 148, 148, 255) 
+
+(57, 148, 148, 255)     180.0       254.558  
+(98, 213, 180, 255)     162.782     242.689
+(16, 16, 16, 255)       0.0         180.0
+(115, 172, 49, 255)     87.804      200.273
+(24, 74, 74, 255)       180.0       254.558
+(164, 213, 65, 255)     79.864      196.921
+(131, 238, 197, 255)    157.009     238.855
+(82, 98, 41, 255)       76.842      195.715
+(189, 255, 115, 255)    88.285      200.485
+(255, 255, 255, 255)    0.0         180.0
+(189, 41, 32, 255)      3.439       180.032
+(205, 205, 205, 255)    0.0         180.0
+(255, 106, 98, 255)     3.057       180.025
+(222, 74, 65, 255)      3.439       180.032
 
 
 
