@@ -4,12 +4,6 @@ import os
 import math
 
 
-class Type(Enum):
-    GRASS = auto()
-    WATER = auto()
-    FIRE = auto()
-
-
 BLACK_COLOR = (16, 16, 16, 255)
 
 
