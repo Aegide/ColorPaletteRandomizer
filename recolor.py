@@ -58,10 +58,12 @@ def is_gray(color):
     blue = color[1][2]
     return red == green == blue
 
+
 # steel types lmao
 def remove_grays(colors:list):
     colors = [color for color in colors if not is_gray(color)]
     return colors
+
 
 def delta(val_a, val_b):
     delta = abs(val_a-val_b)
@@ -82,17 +84,17 @@ def get_hue(color):
     return truncate(main_hue)
 
 
-def get_color_cluster(colors):
+def get_color_cluster(colors:list):
     color_cluster = []
     main_color = get_main_color(colors)
     main_hue = get_hue(main_color)
     
-    for color in colors:
+    for color in list(colors):
         hue = get_hue(color[1])
         delta_hue = delta(main_hue, hue)
         if delta_hue < HUE_BOUND:
             color_cluster.append(color)
-    
+            colors.remove(color)
     return color_cluster
 
 
@@ -110,9 +112,9 @@ def color_analysis(filename):
     colors = remove_grays(colors)
 
     show_colors(colors)
-
     main_cluster = get_color_cluster(colors)
     show_colors(main_cluster)
+    show_colors(colors)
 
     im.close()
 
@@ -128,55 +130,33 @@ def main():
 main()
 
 
-
 """
 
 
-
-
-
-
-
-
-
-
-
-
-
 (218, (57, 148, 148, 255))
 (133, (98, 213, 180, 255))
-(88, (115, 172, 49, 255)) 
-(67, (24, 74, 74, 255))   
-(52, (164, 213, 65, 255)) 
+(88, (115, 172, 49, 255))
+(67, (24, 74, 74, 255))
+(52, (164, 213, 65, 255))
 (36, (131, 238, 197, 255))
-(35, (82, 98, 41, 255))   
+(35, (82, 98, 41, 255))
 (22, (189, 255, 115, 255))
-(14, (189, 41, 32, 255))  
-(6, (255, 106, 98, 255))  
-(4, (222, 74, 65, 255))   
- 
+(14, (189, 41, 32, 255))
+(6, (255, 106, 98, 255))
+(4, (222, 74, 65, 255))
+
 (218, (57, 148, 148, 255))
 (133, (98, 213, 180, 255))
-(67, (24, 74, 74, 255))   
+(67, (24, 74, 74, 255))
 (36, (131, 238, 197, 255))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(88, (115, 172, 49, 255))
+(52, (164, 213, 65, 255))
+(35, (82, 98, 41, 255))
+(22, (189, 255, 115, 255))
+(14, (189, 41, 32, 255))
+(6, (255, 106, 98, 255))
+(4, (222, 74, 65, 255))
 
 
 """
