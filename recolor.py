@@ -4,6 +4,7 @@ import colorsys
 from PIL.ImagePalette import random
 import numpy as np
 import random
+import time
 
 BLACK_COLOR = (16, 16, 16, 255)
 PINK_COLOR = (255, 0, 255)
@@ -179,7 +180,31 @@ def apply_hue(rgb, hue):
     red, green, blue = rgb
     _, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
     red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
-    return truncate(red), truncate(green), truncate(blue)
+    return int(red), int(green), int(blue)
+
+
+def generate_color_masks(color_cluster, data):
+    red, green, blue, _ = data.T
+    color_masks = []
+    for color in color_cluster:
+        color_mask = (red == color[0]) & (green == color[1]) & (blue == color[2])
+        color_masks.append(color_mask)
+    return color_mask
+
+
+def update_color_cluster(old_color_cluster, hue):
+    new_color_cluster = []
+    for old_color in old_color_cluster:
+        new_color = apply_hue(old_color, hue)
+        new_color_cluster.append(new_color)
+        print(old_color, new_color)
+    return new_color_cluster
+
+
+def update_data(data, color_cluster, color_masks):
+    for color, color_mask in zip(color_cluster, color_masks):
+        data[..., :-1][color_mask.T] = color
+    return data
 
 
 def test():
@@ -187,39 +212,61 @@ def test():
     im = im.convert('RGBA')
     data = np.array(im)   # "data" is a height x width x 4 numpy array
     im.close()
-
-    red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+    # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+    
     hue = generate_hue()
-
+    
     color_a = (32, 139, 115)
     color_b = (82, 205, 172)
     color_c = (131, 238, 222)
     color_d = (16, 82, 65)    
+    color_cluster = [color_a, color_b, color_c, color_d] 
 
-    color_a_mask = (red == 32)  & (green == 139) & (blue == 115)
-    color_b_mask = (red == 82)  & (green == 205) & (blue == 172)
-    color_c_mask = (red == 131) & (green == 238) & (blue == 222)
-    color_d_mask = (red == 16)  & (green == 82 ) & (blue == 65 )
+    # color_a_mask = (red == 32)  & (green == 139) & (blue == 115)
+    # color_b_mask = (red == 82)  & (green == 205) & (blue == 172)
+    # color_c_mask = (red == 131) & (green == 238) & (blue == 222)
+    # color_d_mask = (red == 16)  & (green == 82 ) & (blue == 65 )
+    color_masks = generate_color_masks(color_cluster, data)
 
-    color_a = apply_hue(color_a, hue)
-    color_b = apply_hue(color_b, hue)
-    color_c = apply_hue(color_c, hue)
-    color_d = apply_hue(color_d, hue)
+    # color_a = apply_hue(color_a, hue)
+    # color_b = apply_hue(color_b, hue)
+    # color_c = apply_hue(color_c, hue)
+    # color_d = apply_hue(color_d, hue)
+    color_cluster = update_color_cluster(color_cluster, hue)
 
-    data[..., :-1][color_a_mask.T] = color_a
-    data[..., :-1][color_b_mask.T] = color_b
-    data[..., :-1][color_c_mask.T] = color_c
-    data[..., :-1][color_d_mask.T] = color_d
-   
+    # data[..., :-1][color_a_mask.T] = color_a
+    # data[..., :-1][color_b_mask.T] = color_b
+    # data[..., :-1][color_c_mask.T] = color_c
+    # data[..., :-1][color_d_mask.T] = color_d
+    data = update_data(data, color_cluster, color_masks)
+
     im2 = Image.fromarray(data)
     im2.show()
   
 
 
-
 test()
 
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
