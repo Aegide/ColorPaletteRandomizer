@@ -4,7 +4,7 @@ import colorsys
 import numpy as np
 
 BLACK_COLOR = (16, 16, 16, 255)
-PINK_COLOR = (255, 0, 255, 255)
+PINK_COLOR = (255, 0, 255)
 
 # 42.3 max
 HUE_BOUND = 42
@@ -175,25 +175,40 @@ def main():
                 recolor_sprite(entry.name)
                 
 
+def apply_hue(rgb, hue):
+    return PINK_COLOR
+
 
 def test():
     im = Image.open('tests/3.png')
     im = im.convert('RGBA')
-
     data = np.array(im)   # "data" is a height x width x 4 numpy array
-    im.close()
 
-    print(data[0][0])
+    red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+    hue = generate_hue()
 
-    # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+    color_a = (32, 139, 115)
+    color_b = (82, 205, 172)
+    color_c = (131, 238, 222)
+    color_d = (16, 82, 65)    
 
-    # Replace white with red... (leaves alpha values alone...)
-    # white_areas = (red == 255) & (blue == 255) & (green == 255)
-    
-    # data[..., :-1][white_areas.T] = (255, 0, 0) # Transpose back needed
+    color_a_mask = (red == 32)  & (green == 139) & (blue == 115)
+    color_b_mask = (red == 82)  & (green == 205) & (blue == 172)
+    color_c_mask = (red == 131) & (green == 238) & (blue == 222)
+    color_d_mask = (red == 16)  & (green == 82 ) & (blue == 65 )
 
-    # im2 = Image.fromarray(data)
-    # im2.show()
+    color_a = apply_hue(color_a, hue)
+    color_b = apply_hue(color_b, hue)
+    color_c = apply_hue(color_c, hue)
+    color_d = apply_hue(color_d, hue)
+
+    data[..., :-1][color_a_mask.T] = color_a
+    data[..., :-1][color_b_mask.T] = color_b
+    data[..., :-1][color_c_mask.T] = color_c
+    data[..., :-1][color_d_mask.T] = color_d
+   
+    im2 = Image.fromarray(data)
+    im2.show()
   
 
 
@@ -201,50 +216,6 @@ def test():
 test()
 
 """
-
- 
-1.png
-(218, (57, 148, 148, 255))
-(133, (98, 213, 180, 255))
-(67, (24, 74, 74, 255))
-(36, (131, 238, 197, 255))
- 
-(88, (115, 172, 49, 255))
-(52, (164, 213, 65, 255))
-(35, (82, 98, 41, 255))
-(22, (189, 255, 115, 255))
- 
-(14, (189, 41, 32, 255))
-(6, (255, 106, 98, 255))
-(4, (222, 74, 65, 255))
- 
-3
-[(218, (57, 148, 148, 255)), (133, (98, 213, 180, 255)), (67, (24, 74, 74, 255)), (36, (131, 238, 197, 255))]
-[(88, (115, 172, 49, 255)), (52, (164, 213, 65, 255)), (35, (82, 98, 41, 255)), (22, (189, 255, 115, 255))]  
-[(14, (189, 41, 32, 255)), (6, (255, 106, 98, 255)), (4, (222, 74, 65, 255))]
-
-
-
-2.png
-(368, (49, 123, 164, 255))
-(155, (98, 180, 205, 255))
-(113, (16, 65, 74, 255))
-(29, (139, 213, 246, 255))
-
-(171, (74, 139, 32, 255))
-(114, (16, 82, 32, 255))
-(91, (106, 180, 32, 255))
-(14, (131, 230, 90, 255))
-
-(99, (213, 65, 90, 255))
-(59, (255, 123, 123, 255))
-(24, (123, 49, 41, 255))
-(21, (255, 172, 164, 255))
-
-3
-[(368, (49, 123, 164, 255)), (155, (98, 180, 205, 255)), (113, (16, 65, 74, 255)), (29, (139, 213, 246, 255))]
-[(171, (74, 139, 32, 255)), (114, (16, 82, 32, 255)), (91, (106, 180, 32, 255)), (14, (131, 230, 90, 255))]
-[(99, (213, 65, 90, 255)), (59, (255, 123, 123, 255)), (24, (123, 49, 41, 255)), (21, (255, 172, 164, 255))]
 
 
 
