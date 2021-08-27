@@ -1,7 +1,9 @@
 from PIL import Image
 import os
 import colorsys
+from PIL.ImagePalette import random
 import numpy as np
+import random
 
 BLACK_COLOR = (16, 16, 16, 255)
 PINK_COLOR = (255, 0, 255)
@@ -112,19 +114,16 @@ def color_analysis(filename):
     return clusters
 
 
-def update_rgb_by_hue(rgb, hue):
-    red, green, blue, _ = rgb
-    _, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
-    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
-    return truncate(red), truncate(green), truncate(blue), 255
 
-
+# OLD
 def recolor_cluster(color_cluster, recolor_hue):
     recolored_color_cluster = []
+    """
     for color in color_cluster:
         old_rgb = color[1]
         new_rgb = update_rgb_by_hue(old_rgb, recolor_hue)
         recolored_color_cluster.append([color[0], new_rgb])
+    """
     return recolored_color_cluster
 
 
@@ -139,9 +138,10 @@ def create_color_dict(color_cluster, recolor_hue):
     return color_dict
 
 
-# ghost : #705898 : hue(263)
 def generate_hue():
-    return 263
+    # hue, _, _ = colorsys.rgb_to_hsv(227, 83, 154)
+    hue = random.random() * 360
+    return hue
 
 
 def create_recolored_sprite(filename: str, color_clusters: list):
@@ -176,13 +176,17 @@ def main():
                 
 
 def apply_hue(rgb, hue):
-    return PINK_COLOR
+    red, green, blue = rgb
+    _, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
+    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
+    return truncate(red), truncate(green), truncate(blue)
 
 
 def test():
     im = Image.open('tests/3.png')
     im = im.convert('RGBA')
     data = np.array(im)   # "data" is a height x width x 4 numpy array
+    im.close()
 
     red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
     hue = generate_hue()
