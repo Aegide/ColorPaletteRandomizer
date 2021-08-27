@@ -1,32 +1,13 @@
 from PIL import Image
 import os
-from shutil import copyfile
+import colorsys
+
 
 BLACK_COLOR = (16, 16, 16, 255)
-
+PINK_COLOR = (255, 0, 255, 255)
 
 # 42.3 max
 HUE_BOUND = 42
-
-def rgb_to_hsv(r, g, b):
-    r, g, b = r / 255.0, g / 255.0, b / 255.0
-    cmax = max(r, g, b) 
-    cmin = min(r, g, b)   
-    diff = cmax-cmin    
-    if cmax == cmin:
-        h = 0
-    elif cmax == r:
-        h = (60 * ((g - b) / diff) + 360) % 360
-    elif cmax == g:
-        h = (60 * ((b - r) / diff) + 120) % 360
-    elif cmax == b:
-        h = (60 * ((r - g) / diff) + 240) % 360
-    if cmax == 0:
-        s = 0
-    else:
-        s = (diff / cmax) * 100
-    v = cmax * 100
-    return h, s, v
 
 
 def color_amount(elem):
@@ -77,12 +58,11 @@ def get_main_color(colors):
 
 
 def get_hue(color):
-    r, g, b = color[0], color[1], color[2]
-    main_hue, _, _ = rgb_to_hsv(r, g, b)
-    return truncate(main_hue)
+    red, green, blue = color[0], color[1], color[2]
+    hue, _, _ = colorsys.rgb_to_hsv(red, green, blue)
+    return truncate(hue)
 
 
-# TODO : upgrade this
 def get_color_cluster(colors:list):
     color_cluster = []
     cluster_size = 0
@@ -122,7 +102,7 @@ def show_clusters(clusters:list):
 
 
 def color_analysis(filename):
-    im = Image.open("sprites/" + filename)
+    im = Image.open("tests/" + filename)
     colors = get_colors_from_image(im)
     # show_colors(colors)
     remove_alpha(colors)
@@ -132,17 +112,56 @@ def color_analysis(filename):
     return clusters
 
 
-def create_recolored_sprite(filename, colors):
+def update_rgb_by_hue(rgb, hue):
+    red, green, blue, _ = rgb
+    _, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
+    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
+    return truncate(red), truncate(green), truncate(blue), 255
+
+
+def recolor_cluster(color_cluster, recolor_hue):
+    recolored_color_cluster = []
+    for color in color_cluster:
+        old_rgb = color[1]
+        new_rgb = update_rgb_by_hue(old_rgb, recolor_hue)
+        recolored_color_cluster.append([color[0], new_rgb])
+    return recolored_color_cluster
+
+
+def create_color_dict(color_cluster, recolor_hue):
+    """
+    color_cluster = color_clusters[0]
+    show_colors(color_cluster)
+    recolored_color_cluster = recolor_cluster(color_cluster, recolor_hue)
+    show_colors(recolored_color_cluster)
+    """
+    color_dict = {}
+    return color_dict
+
+
+# ghost : #705898 : hue(263)
+def generate_hue():
+    return 263
+
+
+def create_recolored_sprite(filename: str, color_clusters: list):
     # copyfile("sprites/" + filename, "tests/" + filename)
-    pass
+    im = Image.open("tests/" + filename) 
+    recolor_hue = generate_hue()
+    color_dict = create_color_dict(color_clusters, recolor_hue)
+    for x in range(0, im.width):
+        for y in range(0, im.width):
+            old_color = im.getpixel((x,y))
+            new_color = color_dict.get(old_color, PINK_COLOR)
+            im.putpixel((x,y), new_color)
+    im.close()
 
 
 def recolor_sprite(filename):
     print(filename)
-    clusters = color_analysis(filename)
-    create_recolored_sprite(filename, clusters)
-    # print(len(clusters))
-    #show_clusters(clusters)
+    color_clusters = color_analysis(filename)
+    create_recolored_sprite(filename, color_clusters)
+    #show_clusters(color_clusters)
     pass
 
 
