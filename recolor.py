@@ -1,7 +1,7 @@
 from PIL import Image
 import os
 import colorsys
-
+import numpy as np
 
 BLACK_COLOR = (16, 16, 16, 255)
 PINK_COLOR = (255, 0, 255, 255)
@@ -159,24 +159,46 @@ def create_recolored_sprite(filename: str, color_clusters: list):
 
 def recolor_sprite(filename):
     print(filename)
-    color_clusters = color_analysis(filename)
-    create_recolored_sprite(filename, color_clusters)
-    #show_clusters(color_clusters)
-    pass
+    # color_clusters = color_analysis(filename)
+    # create_recolored_sprite(filename, color_clusters)
+    # show_clusters(color_clusters)
+    im = Image.open("tests/" + filename)
+
+    im.close()
 
 
 def main():
     print(" ")
-    with os.scandir("sprites") as it:
+    with os.scandir("tests") as it:
         for entry in it:
             if entry.name.endswith('.png') and entry.is_file():
                 recolor_sprite(entry.name)
                 
 
 
+def test():
+    im = Image.open('tests/3.png')
+    im = im.convert('RGBA')
 
-main()
+    data = np.array(im)   # "data" is a height x width x 4 numpy array
+    im.close()
 
+    print(data[0][0])
+
+    # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+
+    # Replace white with red... (leaves alpha values alone...)
+    # white_areas = (red == 255) & (blue == 255) & (green == 255)
+    
+    # data[..., :-1][white_areas.T] = (255, 0, 0) # Transpose back needed
+
+    # im2 = Image.fromarray(data)
+    # im2.show()
+  
+
+
+
+test()
 
 """
 
