@@ -142,6 +142,7 @@ def create_color_dict(color_cluster, recolor_hue):
 def generate_hue():
     # hue, _, _ = colorsys.rgb_to_hsv(227, 83, 154)
     hue = random.random() * 360
+    print("generate_hue", hue)
     return hue
 
 
@@ -190,6 +191,7 @@ def generate_color_masks(color_cluster, data):
     for color in color_cluster:
         color_mask = (red == color[0]) & (green == color[1]) & (blue == color[2])
         color_masks.append(color_mask)
+    print("generate_color_masks", color_masks)
     return color_masks
 
 
@@ -199,13 +201,19 @@ def update_color_cluster(old_color_cluster, hue):
         new_color = apply_hue(old_color, hue)
         new_color_cluster.append(new_color)
         print(old_color, new_color)
+    print("update_color_cluster", new_color_cluster)
     return new_color_cluster
 
 
 def update_data(data, color_cluster, color_masks):
     for color, color_mask in zip(color_cluster, color_masks):
         data[..., :-1][color_mask.T] = color
+    print("update_data")
     return data
+
+
+def get_color_clusters(im):
+    return []
 
 
 def test():
@@ -215,6 +223,21 @@ def test():
     im.close()
     # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
     
+    color_clusters = get_color_clusters(im)
+
+    for old_color_cluster in color_clusters:
+        hue = generate_hue()
+        color_masks = generate_color_masks(old_color_cluster, data)
+        new_color_cluster = update_color_cluster(old_color_cluster, hue)
+        data = update_data(data, new_color_cluster, color_masks)
+
+    im2 = Image.fromarray(data)
+    im2.show()
+
+
+
+
+    """
     hue = generate_hue()
     print(hue)
     print(" ")
@@ -242,9 +265,9 @@ def test():
     # data[..., :-1][color_c_mask.T] = color_c
     # data[..., :-1][color_d_mask.T] = color_d
     data = update_data(data, color_cluster, color_masks)
+    """
 
-    im2 = Image.fromarray(data)
-    im2.show()
+    
   
 
 
