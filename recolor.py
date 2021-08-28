@@ -9,19 +9,19 @@ import time
 BLACK_COLOR = (16, 16, 16, 255)
 PINK_COLOR = (255, 0, 255)
 
-# 42.3 max
-HUE_BOUND = 42
+
+HUE_BOUND = 0.1
 
 
 def color_amount(elem):
     return elem[0]
 
 
-def truncate(value, decimals=3):
+def truncate(value, decimals=4):
     return int(value*(10**decimals))/(10**decimals)
 
 
-def get_colors_from_image(image):
+def get_colors_from_image(image:Image.Image):
     colors = image.getcolors()
     colors.sort(key=color_amount, reverse=True)
     return colors
@@ -66,19 +66,7 @@ def get_hue(color):
     return truncate(hue)
 
 
-def get_color_cluster(colors:list):
-    color_cluster = []
-    cluster_size = 0
-    main_color = get_main_color(colors)
-    main_hue = get_hue(main_color)
-    for color in list(colors):
-        hue = get_hue(color[1])
-        delta_hue = hue_delta(main_hue, hue)
-        if delta_hue < HUE_BOUND:
-            color_cluster.append(color)
-            cluster_size += 1
-            colors.remove(color)
-    return color_cluster, cluster_size
+
 
 
 def show_colors(colors):
@@ -87,33 +75,18 @@ def show_colors(colors):
     print(" ")
 
 
-def get_clusters(colors:list):
-    clusters = []
-    amount_colours = len(colors)
-    while(amount_colours > 0):
-        color_cluster, cluster_size = get_color_cluster(colors)
-        amount_colours = amount_colours - cluster_size
-        clusters.append(color_cluster)
-        # show_colors(color_cluster)
-    return clusters
 
 
-def show_clusters(clusters:list):
-    for cluster in clusters:
-        print(cluster)
-    print("\n\n")
-
-
+# OLD
 def color_analysis(filename):
     im = Image.open("tests/" + filename)
     colors = get_colors_from_image(im)
     # show_colors(colors)
     remove_alpha(colors)
     remove_grays(colors)
-    clusters = get_clusters(colors)
+    clusters = generate_color_clusters(colors)
     im.close()
     return clusters
-
 
 
 # OLD
@@ -139,11 +112,6 @@ def create_color_dict(color_cluster, recolor_hue):
     return color_dict
 
 
-def generate_hue():
-    # hue, _, _ = colorsys.rgb_to_hsv(227, 83, 154)
-    hue = random.random() * 360
-    print("generate_hue", hue)
-    return hue
 
 
 def create_recolored_sprite(filename: str, color_clusters: list):
@@ -161,7 +129,6 @@ def create_recolored_sprite(filename: str, color_clusters: list):
 
 def recolor_sprite(filename):
     print(filename)
-    print(" ")
     # color_clusters = color_analysis(filename)
     # create_recolored_sprite(filename, color_clusters)
     # show_clusters(color_clusters)
@@ -178,11 +145,67 @@ def main():
                 recolor_sprite(entry.name)
                 
 
-def apply_hue(rgb, hue):
-    red, green, blue = rgb
-    _, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
-    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
-    return int(red), int(green), int(blue)
+
+
+
+
+
+#################################################################################################################################################
+#################################################################################################################################################
+#################################################################################################################################################
+
+
+
+
+def get_color_cluster(colors:list):
+    color_cluster = []
+    cluster_size = 0
+    main_color = get_main_color(colors)
+    main_hue = get_hue(main_color)
+    for color in list(colors):
+        hue = get_hue(color[1])
+        delta_hue = hue_delta(main_hue, hue)
+        if delta_hue < HUE_BOUND:
+            # print(main_color, color[1], "[[[", delta_hue, "]]]")
+            color_cluster.append(color)
+            cluster_size += 1
+            colors.remove(color)
+        # else:
+            # print(main_color, color[1], delta_hue)
+    return color_cluster, cluster_size
+
+
+
+def generate_hue():
+    # hue, _, _ = colorsys.rgb_to_hsv(227, 83, 154)
+    random_value = random.random()
+    return random_value * 360
+
+
+def generate_color_clusters(colors:list):
+    clusters = []
+    amount_colours = len(colors)
+    while(amount_colours > 0):
+        color_cluster, cluster_size = get_color_cluster(colors)
+        amount_colours = amount_colours - cluster_size
+        clusters.append(color_cluster)
+        # show_colors(color_cluster)
+    print(len(clusters))
+    return clusters
+
+
+def show_clusters(clusters:list):
+    for cluster in clusters:
+        print(cluster)
+
+
+def apply_hue(old_rgb, hue):
+    old_red, old_green, old_blue = old_rgb
+    _, saturation, value = colorsys.rgb_to_hsv(old_red, old_green, old_blue)
+    new_red, new_green, new_blue = colorsys.hsv_to_rgb(hue, saturation, value)
+    new_rgb = int(new_red), int(new_green), int(new_blue)
+    print(old_rgb, new_rgb)
+    return new_rgb
 
 
 def generate_color_masks(color_cluster, data):
@@ -208,22 +231,38 @@ def update_data(data, color_cluster, color_masks):
     return data
 
 
-def get_color_clusters(im):
-    color_a = (32, 139, 115)
-    color_b = (82, 205, 172)
-    color_c = (131, 238, 222)
-    color_d = (16, 82, 65)    
-    color_cluster = [color_a, color_b, color_c, color_d] 
-    return [color_cluster]
+def format_color_cluster(old_color_cluster):
+    new_color_cluster = []
+    for old_color in old_color_cluster:
+        new_color = old_color[1][0:3]
+        new_color_cluster.append(new_color)
+    return new_color_cluster
+
+
+def format_color_clusters(old_color_clusters:list):
+    new_color_clusters = []
+    for old_color_cluster in old_color_clusters:
+        new_color_cluster = format_color_cluster(old_color_cluster)
+        new_color_clusters.append(new_color_cluster)
+    return new_color_clusters
+
+
+# TODO
+def get_color_clusters(im:Image.Image):
+    colors = get_colors_from_image(im)
+    remove_alpha(colors)
+    remove_grays(colors)
+    color_clusters = generate_color_clusters(colors)
+    color_clusters = format_color_clusters(color_clusters)
+    # show_clusters(color_clusters)
+    return color_clusters
 
 
 def recolor_sprite(filename):
     print(filename)
     im = Image.open('tests/' + filename)
     im = im.convert('RGBA')
-    data = np.array(im)   # "data" is a height x width x 4 numpy array
-    im.close()
-    # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
+    data = np.array(im)
     
     color_clusters = get_color_clusters(im)
 
@@ -232,10 +271,11 @@ def recolor_sprite(filename):
         color_masks = generate_color_masks(old_color_cluster, data)
         new_color_cluster = update_color_cluster(old_color_cluster, hue)
         data = update_data(data, new_color_cluster, color_masks)
-
+    im.close()
+    
     im2 = Image.fromarray(data)
     im2.show()
-
+    im2.close()
 
 recolor_sprite("3.png")
 
@@ -248,64 +288,4 @@ recolor_sprite("3.png")
 
 
 
-
-
-
-
-
-
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-3.png
-(431, (32, 139, 115, 255))
-(363, (82, 205, 172, 255))
-(211, (131, 238, 222, 255))
-(133, (16, 82, 65, 255))
-
-(377, (255, 131, 115, 255))
-(286, (222, 65, 65, 255))
-(259, (131, 49, 0, 255))
-(54, (189, 106, 49, 255))
-
-(371, (57, 139, 41, 255))
-(238, (106, 189, 74, 255))
-(90, (148, 238, 148, 255))
-
-(106, (255, 238, 82, 255))
-(97, (222, 189, 41, 255))
-
-4
-[(431, (32, 139, 115, 255)), (363, (82, 205, 172, 255)), (211, (131, 238, 222, 255)), (133, (16, 82, 65, 255))]
-[(377, (255, 131, 115, 255)), (286, (222, 65, 65, 255)), (259, (131, 49, 0, 255)), (54, (189, 106, 49, 255))]
-[(371, (57, 139, 41, 255)), (238, (106, 189, 74, 255)), (90, (148, 238, 148, 255))]
-[(106, (255, 238, 82, 255)), (97, (222, 189, 41, 255))]
-
-
-
-
-
-
-
-"""
 
