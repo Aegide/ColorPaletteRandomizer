@@ -175,7 +175,6 @@ def get_color_cluster(colors:list):
     return color_cluster, cluster_size
 
 
-
 def generate_hue():
     # hue, _, _ = colorsys.rgb_to_hsv(227, 83, 154)
     random_value = random.random()
@@ -190,7 +189,6 @@ def generate_color_clusters(colors:list):
         amount_colours = amount_colours - cluster_size
         clusters.append(color_cluster)
         # show_colors(color_cluster)
-    print(len(clusters))
     return clusters
 
 
@@ -204,7 +202,6 @@ def apply_hue(old_rgb, hue):
     _, saturation, value = colorsys.rgb_to_hsv(old_red, old_green, old_blue)
     new_red, new_green, new_blue = colorsys.hsv_to_rgb(hue, saturation, value)
     new_rgb = int(new_red), int(new_green), int(new_blue)
-    print(old_rgb, new_rgb)
     return new_rgb
 
 
@@ -260,32 +257,26 @@ def get_color_clusters(im:Image.Image):
 
 def recolor_sprite(filename):
     print(filename)
-    im = Image.open('tests/' + filename)
+    im = Image.open('sprites/' + filename)
     im = im.convert('RGBA')
     data = np.array(im)
-    
     color_clusters = get_color_clusters(im)
-
     for old_color_cluster in color_clusters:
         hue = generate_hue()
         color_masks = generate_color_masks(old_color_cluster, data)
         new_color_cluster = update_color_cluster(old_color_cluster, hue)
         data = update_data(data, new_color_cluster, color_masks)
     im.close()
-    
     im2 = Image.fromarray(data)
-    im2.show()
+    im2.save('tests/' + filename)
     im2.close()
 
-recolor_sprite("3.png")
 
+def recolor_sprites():
+    with os.scandir("sprites") as it:
+        for entry in it:
+            if entry.name.endswith('.png') and entry.is_file():
+                recolor_sprite(entry.name)
+   
 
-
-
-
-
-
-
-
-
-
+recolor_sprites()
