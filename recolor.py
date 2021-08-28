@@ -160,6 +160,7 @@ def create_recolored_sprite(filename: str, color_clusters: list):
 
 def recolor_sprite(filename):
     print(filename)
+    print(" ")
     # color_clusters = color_analysis(filename)
     # create_recolored_sprite(filename, color_clusters)
     # show_clusters(color_clusters)
@@ -189,7 +190,7 @@ def generate_color_masks(color_cluster, data):
     for color in color_cluster:
         color_mask = (red == color[0]) & (green == color[1]) & (blue == color[2])
         color_masks.append(color_mask)
-    return color_mask
+    return color_masks
 
 
 def update_color_cluster(old_color_cluster, hue):
@@ -215,6 +216,8 @@ def test():
     # red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
     
     hue = generate_hue()
+    print(hue)
+    print(" ")
     
     color_a = (32, 139, 115)
     color_b = (82, 205, 172)
