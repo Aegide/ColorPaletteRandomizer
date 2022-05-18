@@ -200,7 +200,7 @@ def recolor_sprites():
     with os.scandir("sprites") as elements:
         for element in elements:
             if is_sprite(element):
-                recolor_sprite(element.name)
+                recolor_sprite(element)
 
 
 if __name__ == "__main__":
