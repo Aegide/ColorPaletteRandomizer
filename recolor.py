@@ -1,3 +1,4 @@
+import ntpath
 from PIL import Image
 import os
 import colorsys
@@ -152,36 +153,55 @@ def get_colors_from_image(image:Image.Image):
 
 
 def get_color_clusters(im:Image.Image):
+    color_clusters = []
+    """"
     colors = get_colors_from_image(im)
     remove_alpha(colors)
     remove_grays(colors)
     color_clusters = generate_color_clusters(colors)
     color_clusters = format_color_clusters(color_clusters)
+    """
     return color_clusters
 
 
-def recolor_sprite(filename):
+def get_image(filename: str):
+    sprite_path = os.path.join("sprites", filename)
+    image = Image.open(sprite_path)
+    image = image.convert('RGBA')
+    return image
+
+
+def recolor_sprite(file: os.DirEntry):
+    filename = file.name
     print(filename)
-    im = Image.open('sprites/' + filename)
-    im = im.convert('RGBA')
-    data = np.array(im)
-    color_clusters = get_color_clusters(im)
+
+    current_image = get_image(filename)
+    data = np.array(current_image)
+    color_clusters = get_color_clusters(current_image)
+
     for old_color_cluster in color_clusters:
         hue = generate_hue()
         color_masks = generate_color_masks(old_color_cluster, data)
         new_color_cluster = update_color_cluster(old_color_cluster, hue)
         data = update_data(data, new_color_cluster, color_masks)
-    im.close()
-    im2 = Image.fromarray(data)
-    im2.save('tests/' + filename)
-    im2.close()
+    current_image.close()
+
+    new_image = Image.fromarray(data)
+    result_path = os.path.join("results", filename)
+    new_image.save(result_path)
+    new_image.close()
+
+
+def is_sprite(element: os.DirEntry):
+    return element.name.endswith('.png') and element.is_file()
 
 
 def recolor_sprites():
-    with os.scandir("sprites") as it:
-        for entry in it:
-            if entry.name.endswith('.png') and entry.is_file():
-                recolor_sprite(entry.name)
-   
+    with os.scandir("sprites") as elements:
+        for element in elements:
+            if is_sprite(element):
+                recolor_sprite(element.name)
 
-recolor_sprites()
+
+if __name__ == "__main__":
+    recolor_sprites()
