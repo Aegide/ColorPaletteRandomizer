@@ -198,10 +198,11 @@ def is_sprite(element: os.DirEntry):
 
 def recolor_sprites():
     with os.scandir("sprites") as elements:
+        print(" ")
         for element in elements:
             if is_sprite(element):
                 recolor_sprite(element)
-
+        print(" ")
 
 if __name__ == "__main__":
     recolor_sprites()
