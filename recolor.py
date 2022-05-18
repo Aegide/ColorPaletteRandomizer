@@ -8,6 +8,7 @@ import random
 import time
 
 BLACK_COLOR = (16, 16, 16, 255)
+
 PINK_COLOR = (255, 0, 255)
 
 
@@ -75,17 +76,17 @@ def get_color_cluster(colors:list):
     return color_cluster, cluster_size
 
 
-def generate_hue():
-    random_value = random.random()
-    return random_value * 360
+def generate_hue()->float:
+    hue = random.random()
+    return hue
 
 
 def generate_color_clusters(colors:list):
     clusters = []
-    amount_colours = len(colors)
-    while(amount_colours > 0):
+    amount_colors = len(colors)
+    while(amount_colors > 0):
         color_cluster, cluster_size = get_color_cluster(colors)
-        amount_colours = amount_colours - cluster_size
+        amount_colors = amount_colors - cluster_size
         clusters.append(color_cluster)
     return clusters
 
@@ -100,6 +101,7 @@ def apply_hue(old_rgb, hue):
     _, saturation, value = colorsys.rgb_to_hsv(old_red, old_green, old_blue)
     new_red, new_green, new_blue = colorsys.hsv_to_rgb(hue, saturation, value)
     new_rgb = int(new_red), int(new_green), int(new_blue)
+    new_rgb = PINK_COLOR
     return new_rgb
 
 
@@ -153,14 +155,11 @@ def get_colors_from_image(image:Image.Image):
 
 
 def get_color_clusters(im:Image.Image):
-    color_clusters = []
-    """"
     colors = get_colors_from_image(im)
     remove_alpha(colors)
     remove_grays(colors)
     color_clusters = generate_color_clusters(colors)
     color_clusters = format_color_clusters(color_clusters)
-    """
     return color_clusters
 
 
@@ -178,6 +177,9 @@ def recolor_sprite(file: os.DirEntry):
     current_image = get_image(filename)
     data = np.array(current_image)
     color_clusters = get_color_clusters(current_image)
+
+    # TODO : make one sprite per color cluster of each pokemon
+    # color_clusters = [color_clusters[-1]]
 
     for old_color_cluster in color_clusters:
         hue = generate_hue()
