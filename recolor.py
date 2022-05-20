@@ -1,9 +1,12 @@
+from hashlib import md5
+import hashlib
 import ntpath
 from PIL import Image
 import os
 import colorsys
 from PIL.ImagePalette import random
 import numpy as np
+from numpy import ndarray
 import random
 import time
 
@@ -11,6 +14,7 @@ BLACK_COLOR = (16, 16, 16, 255)
 
 PINK_COLOR = (255, 0, 255)
 
+WHATEVER = 0
 
 HUE_BOUND = 0.1
 
@@ -114,7 +118,7 @@ def generate_color_masks(color_cluster, data):
     return color_masks
 
 
-def update_color_cluster(old_color_cluster, hue):
+def recolor_color_cluster(old_color_cluster, hue):
     new_color_cluster = []
     for old_color in old_color_cluster:
         new_color = apply_hue(old_color, hue)
@@ -184,7 +188,7 @@ def recolor_sprite(file: os.DirEntry):
     for old_color_cluster in color_clusters:
         hue = generate_hue()
         color_masks = generate_color_masks(old_color_cluster, data)
-        new_color_cluster = update_color_cluster(old_color_cluster, hue)
+        new_color_cluster = recolor_color_cluster(old_color_cluster, hue)
         data = update_data(data, new_color_cluster, color_masks)
     current_image.close()
 
@@ -206,5 +210,53 @@ def recolor_sprites():
                 recolor_sprite(element)
         print(" ")
 
+
+def create_image(filename:str, data: ndarray):
+    image = Image.fromarray(data)
+    path = os.path.join("results", filename)
+    image.save(path)
+    image.close()
+
+
+def encode(text:str):
+    hash_object = hashlib.md5(text.encode())
+    md5_hash = hash_object.hexdigest()
+    return md5_hash
+
+def decompose_sprite(file: os.DirEntry):
+    original_filename = file.name
+    print(original_filename)
+    original_image = get_image(original_filename)
+    color_clusters = get_color_clusters(original_image)
+    hue = WHATEVER
+    counter = 0
+
+    for color_cluster in color_clusters:
+        
+        original_data = np.array(original_image)
+        color_masks = generate_color_masks(color_cluster, original_data)
+        recolored_color_cluster = recolor_color_cluster(color_cluster, hue)
+        recolored_data = update_data(original_data, recolored_color_cluster, color_masks)
+
+        sprite_id = original_filename.split(".png")[0]
+        filename = f"{sprite_id}_{counter}.png"
+        create_image(filename, recolored_data)
+        counter += 1
+
+
+    
+    original_image.close()
+
+
+def decompose_sprites():
+    with os.scandir("sprites") as elements:
+        print(" ")
+        for element in elements:
+            if is_sprite(element):
+                decompose_sprite(element)
+        print(" ")
+
+
 if __name__ == "__main__":
-    recolor_sprites()
+    # recolor_sprites()
+    decompose_sprites()
