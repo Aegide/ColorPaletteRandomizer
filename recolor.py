@@ -28,10 +28,8 @@ WIDTH = 80
 HEIGHT = 80
 
 
-# small values = lots of clusters
-# hight = not many clusters
-# 0.4 = the start of the color decomposition
-HUE_BOUND = 0.1
+# 0.121 = charmander unified eye
+HUE_BOUND = 0.122
 
 
 
@@ -44,10 +42,13 @@ HUE_BOUND = 0.1
 
 
 def get_main_color(colors):
+    """
     if (colors[0][1] == BLACK_RGBA):
         main_color = colors[1][1]
     else:
         main_color = colors[0][1]
+    """
+    main_color = colors[0][1]
     return main_color
 
 
@@ -79,11 +80,12 @@ def get_hue(color):
     return truncate(hue)
 
 
-def hue_delta(hua_a, hue_b):
-    delta = abs(hua_a - hue_b)
-    if ( delta > 180 ):
-        delta = 360 - delta
-    return truncate(delta)
+def hue_delta(hue_a, hue_b):
+    limit = 1
+    hue_ab = truncate((hue_a - hue_b)%limit, 3)
+    hue_ba = truncate((hue_b - hue_a)%limit, 3)
+    delta = min(hue_ab, hue_ba)
+    return delta
 
 
 def get_color_cluster(colors:list):
@@ -91,6 +93,21 @@ def get_color_cluster(colors:list):
     cluster_size = 0
     main_color = get_main_color(colors)
     main_hue = get_hue(main_color)
+
+    """
+    print("colors:")
+    for color in colors:
+        hue = get_hue(color[1])
+        delta_hue = hue_delta(main_hue, hue)
+        print(color, "=", hue, ":", delta_hue)
+        
+    print(" ")
+
+    print("main_color:")
+    print(main_color, "=", main_hue, ":", 0)
+    print(" ")
+    """
+
     for color in list(colors):
         hue = get_hue(color[1])
         delta_hue = hue_delta(main_hue, hue)
@@ -101,6 +118,18 @@ def get_color_cluster(colors:list):
             colors.remove(color)
         # else:
             # print(main_color, color[1], delta_hue)
+
+    """
+    print("color_cluster:")
+    for color in color_cluster:
+        hue = get_hue(color[1])
+        delta_hue = hue_delta(main_hue, hue)
+        print(color, "=", hue, ":", delta_hue)
+
+    print(" ")
+    print(" ")
+    """
+
     return color_cluster, cluster_size
 
 
