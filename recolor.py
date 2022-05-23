@@ -4,6 +4,7 @@ import ntpath
 from PIL import Image
 import os
 import colorsys
+import PIL
 from PIL.ImagePalette import random
 import numpy as np
 from numpy import ndarray
@@ -30,14 +31,6 @@ HEIGHT = 80
 
 # 0.121 = charmander unified eye
 HUE_BOUND = 0.122
-
-
-
-
-
-
-
-
 
 
 
@@ -158,7 +151,6 @@ def apply_hue(old_rgb, hue):
     _, saturation, value = colorsys.rgb_to_hsv(old_red, old_green, old_blue)
     new_red, new_green, new_blue = colorsys.hsv_to_rgb(hue, saturation, value)
     new_rgb = int(new_red), int(new_green), int(new_blue)
-    new_rgb = PINK_RGB
     return new_rgb
 
 
@@ -263,11 +255,10 @@ def recolor_sprite(file: os.DirEntry):
     print(filename)
 
     current_image = get_image(filename)
+    # zoom = 3
+    # current_image = current_image.resize((80*zoom, 80*zoom),resample=PIL.Image.NEAREST)
     data = np.array(current_image)
     color_clusters = get_color_clusters(current_image)
-
-    # TODO : make one sprite per color cluster of each pokemon
-    # color_clusters = [color_clusters[-1]]
 
     for old_color_cluster in color_clusters:
         hue = generate_hue()
@@ -347,6 +338,7 @@ def decompose_sprites():
         print(" ")
 
 
+
 if __name__ == "__main__":
-    # recolor_sprites()
-    decompose_sprites()
+    recolor_sprites()
+    # decompose_sprites()
